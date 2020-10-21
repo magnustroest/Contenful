@@ -1,8 +1,10 @@
+const fetch = require('node-fetch')
+const contentful = require('contentful-management');
+require('dotenv').config();
+const API_ENDPOINT = process.env.API_ENDPOINT;
+
 exports.handler = async function (event, context) {
-    const fetch = require('node-fetch')
-    const contentful = require('contentful-management');
-    require('dotenv').config();
-    const API_ENDPOINT = process.env.API_ENDPOINT;
+
     const client = contentful.createClient({
         accessToken: process.env.accessToken,
     });
