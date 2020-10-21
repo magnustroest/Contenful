@@ -8,9 +8,12 @@
     "contentful": "^7.14.7",
     "contentful-import": "^7.9.12",
     "contentful-management": "^6.1.2",
+    "dotenv": "^8.2.0",
     "event-stream": "^4.0.1",
+    "lodash": "^4.17.20",
     "node-fetch": "^2.6.1",
-    "p-throttle": "^3.1.0"
+    "p-throttle": "^3.1.0",
+    "request": "^2.88.2"
   },
   "devDependencies": {},
   "scripts": {
