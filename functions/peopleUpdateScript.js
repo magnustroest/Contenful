@@ -2,6 +2,8 @@ const fetch = require('node-fetch')
 require('dotenv').config();
 const Post_API = process.env.Post_API;
 const contentful = require('contentful-management');
+
+exports.handler = async function (event, context) {
 const client = contentful.createClient({
     accessToken: process.env.accessToken,
 });
@@ -451,3 +453,4 @@ const main = async () => {
     }
 }
 main();
+}
