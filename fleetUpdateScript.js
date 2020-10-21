@@ -6,7 +6,7 @@ const API_ENDPOINT = process.env.API_ENDPOINT;
 const client = contentful.createClient({
     accessToken: process.env.accessToken,
 });
-
+exports.handler = async function(event, context) {
 const test = async () => {
     try {
         const clientWithSpace = await client.getSpace(process.env.getSpace);
@@ -198,8 +198,13 @@ const test = async () => {
                 .then((entry) => entry.publish())
                 .catch(console.error)
         }
+        return {
+            statusCode: 200,
+            body: JSON.stringify({message: "Goood"})
+        };
     } catch (e) {
         console.error(e)
     }
 }
 test();
+}
