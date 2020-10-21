@@ -1,5 +1,5 @@
 node_modules
 .env
-.deleteScript.js
-.addPeopleData.js
-.addShipSegment.js
+.deleteScript
+.addPeopleData
+.addShipSegment
