@@ -211,15 +211,12 @@ exports.handler = async function (event, context) {
                 .then((entry) => entry.publish())
                 .catch(console.error)
         }
+        return {
+            statusCode: 200,
+            body: JSON.stringify({ message: "Goood" })
+        };
     } catch (e) {
         console.log(e)
     }
     console.log("Here")
-    return {
-        statusCode: 200,
-        body: JSON.stringify({ message: "Goood" })
-    };
-
-
-
 }
