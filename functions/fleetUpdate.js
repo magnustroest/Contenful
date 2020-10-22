@@ -169,51 +169,52 @@ exports.handler = async function (event, context) {
         })
         console.log("næsten færdig")
 
+
+        //Looping through filtered items and add them to contentful
+        for (const data of filtered) {
+            let segmentId = [];
+            shipSegment.items.forEach((element) => {
+                if (data.Type.includes(Object.values(element.fields.type).toString())) {
+                    segmentId = element.sys.id
+                }
+            });
+            await processOneEntry(data, segmentId, this);
+        }
+        async function processOneEntry(data, segmentId) {
+            await client.getSpace(process.env.SPACE_ID)
+                .then((space) => space.getEnvironment('master'))
+                .then((environment) => environment.createEntry('vessel', {
+                    fields: {
+                        type: { "en-US": { sys: { type: "Link", linkType: "Entry", id: segmentId } } },
+                        name: { 'en-US': data.Name },
+                        flagCountryName: { 'en-US': data['Flag_Country_Name'] },
+                        buildYear: { 'en-US': data['Build_Year'] },
+                        yard: { 'en-US': data.Yard },
+                        tankCoating: { 'en-US': data["Tank_Coating"] },
+                        iceClass: { 'en-US': data["Ice_Class"] },
+                        imo: { 'en-US': data.Imo },
+                        imoNumber: { 'en-US': data['Imo_Number'] },
+                        draft: { 'en-US': data.Draft },
+                        loa: { 'en-US': data.Loa },
+                        beam: { 'en-US': data.Beam },
+                        scnt: { 'en-US': data.Scnt },
+                        pcbt: { 'en-US': data.Pcbt },
+                        cbm: { 'en-US': data.Cbm },
+                        cbmSlops: { 'en-US': data["Cbm_Slops"] },
+                        sdwt: { 'en-US': data.Sdwt },
+                        class: { 'en-US': data.Class },
+                        piclub: { 'en-US': data.Piclub },
+                        ktm: { 'en-US': data.Ktm },
+
+                    }
+                }))
+                .then((entry) => entry.publish())
+                .catch(console.error)
+        }
     } catch (e) {
         console.log(e)
     }
     console.log("Here")
-    // //Looping through filtered items and add them to contentful
-    // for (const data of filtered) {
-    //     let segmentId = [];
-    //     shipSegment.items.forEach((element) => {
-    //         if (data.Type.includes(Object.values(element.fields.type).toString())) {
-    //             segmentId = element.sys.id
-    //         }
-    //     });
-    //     await processOneEntry(data, segmentId, this);
-    // }
-    // async function processOneEntry(data, segmentId) {
-    //     await client.getSpace(process.env.SPACE_ID)
-    //         .then((space) => space.getEnvironment('master'))
-    //         .then((environment) => environment.createEntry('vessel', {
-    //             fields: {
-    //                 type: { "en-US": { sys: { type: "Link", linkType: "Entry", id: segmentId } } },
-    //                 name: { 'en-US': data.Name },
-    //                 flagCountryName: { 'en-US': data['Flag_Country_Name'] },
-    //                 buildYear: { 'en-US': data['Build_Year'] },
-    //                 yard: { 'en-US': data.Yard },
-    //                 tankCoating: { 'en-US': data["Tank_Coating"] },
-    //                 iceClass: { 'en-US': data["Ice_Class"] },
-    //                 imo: { 'en-US': data.Imo },
-    //                 imoNumber: { 'en-US': data['Imo_Number'] },
-    //                 draft: { 'en-US': data.Draft },
-    //                 loa: { 'en-US': data.Loa },
-    //                 beam: { 'en-US': data.Beam },
-    //                 scnt: { 'en-US': data.Scnt },
-    //                 pcbt: { 'en-US': data.Pcbt },
-    //                 cbm: { 'en-US': data.Cbm },
-    //                 cbmSlops: { 'en-US': data["Cbm_Slops"] },
-    //                 sdwt: { 'en-US': data.Sdwt },
-    //                 class: { 'en-US': data.Class },
-    //                 piclub: { 'en-US': data.Piclub },
-    //                 ktm: { 'en-US': data.Ktm },
-
-    //             }
-    //         }))
-    //         .then((entry) => entry.publish())
-    //         .catch(console.error)
-    // }
     return {
         statusCode: 200,
         body: JSON.stringify({ message: "Goood" })
