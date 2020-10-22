@@ -3,7 +3,6 @@ require('dotenv').config({ path: '../.env' });
 const contentful = require('contentful-management');
 
 exports.handler = async function (event, context) {
-    console.log("1")
 
     const client = contentful.createClient({
         accessToken: process.env.ACCESSTOKEN,
@@ -12,18 +11,10 @@ exports.handler = async function (event, context) {
         }
     });
     try {
-
         console.log(process.env.API_ENDPOINT + " " + process.env.SPACE_ID)
-
         const clientWithSpace = await client.getSpace(process.env.SPACE_ID);
-
-
         const clientWithEnv = await clientWithSpace.getEnvironment('master');
-
-
         const response = await fetch(process.env.API_ENDPOINT, { headers: { 'Content-Type': 'application/json', 'Ocp-Apim-Subscription-Key': process.env.OCPAPIMSUBSCRIPTIONKEYFLEET, 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept' } });
-
-
         const json = await response.json();
         delete json.FleetTotalsSplitBySegment
         console.log("2")
@@ -39,7 +30,6 @@ exports.handler = async function (event, context) {
         }
         );
         var shipSegmentFields = shipSegment.items.map(a => a.fields)
-
         function findTypeValueByReference(id) {
             var type;
             shipSegment.items.forEach((element) => {
@@ -211,12 +201,12 @@ exports.handler = async function (event, context) {
                 .then((entry) => entry.publish())
                 .catch(console.error)
         }
-        return {
-            statusCode: 200,
-            body: JSON.stringify({ message: "Goood" })
-        };
     } catch (e) {
         console.log(e)
     }
-    console.log("Here")
+    return {
+        statusCode: 200,
+        body: JSON.stringify({ message: "Goood" })
+    };
+
 }

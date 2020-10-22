@@ -1,17 +1,15 @@
 const fetch = require('node-fetch')
 require('dotenv').config({path: '../.env'});
-const Post_API = process.env.Post_API;
 const contentful = require('contentful-management');
-
-console.log(typeof process.env.accessToken)
 const client = contentful.createClient({
-    accessToken: process.env.accessToken,
+    accessToken: process.env.ACCESSTOKEN,
 });
 const sleep = require('util').promisify(setTimeout)
-const main = async () => {
+
+exports.handler = async function (event, context) {
     try {
-        const postResponse = await fetch(Post_API, {
-            headers: { 'Content-Type': 'application/json', 'Ocp-Apim-Subscription-Key': process.env.OcpApimSubscriptionKeyPeople, 'Access-Control-Expose-Headers': 'Location' },
+        const postResponse = await fetch(process.env.POST_API, {
+            headers: { 'Content-Type': 'application/json', 'Ocp-Apim-Subscription-Key': process.env.OCPAPIMSUBSCRIPTIONKEYPEOPLE, 'Access-Control-Expose-Headers': 'Location' },
             method: "POST",
             body: JSON.stringify({
                 "exclude-positions": ["A1 Student Assistant", "Intern"],
@@ -173,7 +171,7 @@ const main = async () => {
 
         async function getResponseMethod() {
             var getResponse = await fetch(postResponse.headers.get('Location'), {
-                headers: { 'Content-Type': 'application/json', 'Ocp-Apim-Subscription-Key': '9f8b74dceb90488e8013731d72d86cf2', 'Access-Control-Expose-Headers': 'Location' },
+                headers: { 'Content-Type': 'application/json', 'Ocp-Apim-Subscription-Key': process.env.OCPAPIMSUBSCRIPTIONKEYPEOPLE, 'Access-Control-Expose-Headers': 'Location' },
                 method: "GET",
             });
             var json = await getResponse.json()
@@ -189,7 +187,7 @@ const main = async () => {
 
         var json = await getResponseMethod()
 
-        const clientWithSpace = await client.getSpace(process.env.getSpace);
+        const clientWithSpace = await client.getSpace(process.env.SPACE_ID);
         const clientWithEnv = await clientWithSpace.getEnvironment('master');
 
 
@@ -307,7 +305,7 @@ const main = async () => {
             await processOneEntrySegment(data, this);
         }
         async function processOneEntrySegment(data) {
-            await client.getSpace(process.env.getSpace)
+            await client.getSpace(process.env.SPACE_ID)
                 .then((space) => space.getEnvironment('master'))
                 .then((environment) => environment.createEntry('peopleSegments', {
                     fields: {
@@ -351,7 +349,7 @@ const main = async () => {
             await processOneEntryLocation(data, this);
         }
         async function processOneEntryLocation(data) {
-            await client.getSpace(process.env.getSpace)
+            await client.getSpace(process.env.SPACE_ID)
                 .then((space) => space.getEnvironment('master'))
                 .then((environment) => environment.createEntry('peopleLocation', {
                     fields: {
@@ -428,7 +426,7 @@ const main = async () => {
             await processOneEntry(data, segmentsId, locationId, positionNameId, this);
         }
         async function processOneEntry(data, segmentsId, locationId, positionNameId) {
-            await client.getSpace(process.env.getSpace)
+            await client.getSpace(process.env.SPACE_ID)
                 .then((space) => space.getEnvironment('master'))
                 .then((environment) => environment.createEntry('people', {
                     fields: {
@@ -451,5 +449,8 @@ const main = async () => {
     } catch (e) {
         console.error(e)
     }
+    return {
+        statusCode: 200,
+        body: JSON.stringify({ message: "Goood" })
+    };
 }
-main();
