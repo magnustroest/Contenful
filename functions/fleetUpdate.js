@@ -14,29 +14,29 @@ exports.handler = async function (event, context) {
     try {
 
         console.log(process.env.API_ENDPOINT + " " + process.env.SPACE_ID)
-        console.log("Oh")
+
         const clientWithSpace = await client.getSpace(process.env.SPACE_ID);
-        console.log("MY")
+
 
         const clientWithEnv = await clientWithSpace.getEnvironment('master');
-        console.log("God")
+
 
         const response = await fetch(process.env.API_ENDPOINT, { headers: { 'Content-Type': 'application/json', 'Ocp-Apim-Subscription-Key': process.env.OCPAPIMSUBSCRIPTIONKEYFLEET, 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept' } });
-        console.log("no")
+
+
+        const json = await response.json();
+        delete json.FleetTotalsSplitBySegment
+        console.log("2")
+        var vessel = await clientWithEnv.getEntries({
+            content_type: 'vessel',
+            limit: 500
+        }
+        );
+        var ship = vessel.items.map(a => a.fields)
     } catch (e) {
         console.log(e)
     }
-    console.log("It")
-    // const json = await response.json();
-    // delete json.FleetTotalsSplitBySegment
-    // console.log("2")
-    // var vessel = await clientWithEnv.getEntries({
-    //     content_type: 'vessel',
-    //     limit: 500
-    // }
-    // );
-    // var ship = vessel.items.map(a => a.fields)
-
+    console.log("Here")
     // var shipSegment = await clientWithEnv.getEntries({
     //     content_type: 'shipSegment'
     // }
