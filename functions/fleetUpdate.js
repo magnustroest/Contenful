@@ -6,7 +6,7 @@ exports.handler = async function (event, context) {
     console.log("1")
 
     const client = contentful.createClient({
-        accessToken: process.env.accessToken,
+        accessToken: process.env.ACCESSTOKEN,
     });
     const main = async () => {
         try {
@@ -94,7 +94,7 @@ exports.handler = async function (event, context) {
                 await processOneEntrySegment(data, this);
             }
             async function processOneEntrySegment(data) {
-                await client.getSpace(process.env.getSpace)
+                await client.getSpace(process.env.SPACE_ID)
                     .then((space) => space.getEnvironment('master'))
                     .then((environment) => environment.createEntry('shipSegment', {
                         fields: {
