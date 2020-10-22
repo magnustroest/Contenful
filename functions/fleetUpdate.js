@@ -8,6 +8,7 @@ exports.handler = async function (event, context) {
     const client = contentful.createClient({
         accessToken: process.env.ACCESSTOKEN,
     });
+    console.log("client ")
     const main = async () => {
         try {
             const clientWithSpace = await client.getSpace(process.env.SPACE_ID);
