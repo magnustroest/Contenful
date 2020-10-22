@@ -10,6 +10,7 @@ exports.handler = async function (event, context) {
     });
     const main = async () => {
         try {
+            console.log(client)
             console.log(process.env.API_ENDPOINT + " " + process.env.SPACE_ID)
             console.log("Oh")
             const clientWithSpace = await client.getSpace(process.env.SPACE_ID);
