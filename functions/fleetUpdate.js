@@ -1,7 +1,6 @@
 const fetch = require('node-fetch')
 require('dotenv').config({path: '../.env'});
 const contentful = require('contentful-management');
-require('dotenv').config();
 const API_ENDPOINT = process.env.API_ENDPOINT;
 
 exports.handler = async function (event, context) {
@@ -12,6 +11,7 @@ exports.handler = async function (event, context) {
     });
     const main = async () => {
         try {
+            console.log("hej")
             const clientWithSpace = await client.getSpace(process.env.getSpace);
             const clientWithEnv = await clientWithSpace.getEnvironment('master');
             const response = await fetch(API_ENDPOINT, { headers: { 'Content-Type': 'application/json', 'Ocp-Apim-Subscription-Key': process.env.OcpApimSubscriptionKeyFleet, 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept' } });
