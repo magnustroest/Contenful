@@ -5,6 +5,7 @@ require('dotenv').config();
 const API_ENDPOINT = process.env.API_ENDPOINT;
 
 exports.handler = async function (event, context) {
+    console.log("1")
 
     const client = contentful.createClient({
         accessToken: process.env.accessToken,
@@ -16,7 +17,7 @@ exports.handler = async function (event, context) {
             const response = await fetch(API_ENDPOINT, { headers: { 'Content-Type': 'application/json', 'Ocp-Apim-Subscription-Key': process.env.OcpApimSubscriptionKeyFleet, 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept' } });
             const json = await response.json();
             delete json.FleetTotalsSplitBySegment
-
+            console.log("2")
             var vessel = await clientWithEnv.getEntries({
                 content_type: 'vessel',
                 limit: 500
