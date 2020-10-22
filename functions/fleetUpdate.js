@@ -33,45 +33,46 @@ exports.handler = async function (event, context) {
         }
         );
         var ship = vessel.items.map(a => a.fields)
-    } catch (e) {
+  
+    var shipSegment = await clientWithEnv.getEntries({
+        content_type: 'shipSegment'
+    }
+    );
+    var shipSegmentFields = shipSegment.items.map(a => a.fields)
+
+    function findTypeValueByReference(id) {
+        var type;
+        shipSegment.items.forEach((element) => {
+            if (element.sys.id === id) {
+                type = Object.values(element.fields.type).toString()
+            }
+        });
+        return type;
+    }
+    function findEntryIdByImoNumber(imoNumber) {
+        var entryId;
+        for (element of vessel.items) {
+            if (Object.values(element.fields.imoNumber).toString() === imoNumber) {
+                entryId = element.sys.id.toString()
+            }
+
+        }
+        return entryId;
+    }
+    function findEntryIdBySegmentName(segmentName) {
+        var entryId;
+        for (element of shipSegment.items) {
+            if (Object.values(element.fields.type).toString() === segmentName) {
+                entryId = element.sys.id.toString()
+            }
+
+        }
+        return entryId;
+    }
+      } catch (e) {
         console.log(e)
     }
     console.log("Here")
-    // var shipSegment = await clientWithEnv.getEntries({
-    //     content_type: 'shipSegment'
-    // }
-    // );
-    // var shipSegmentFields = shipSegment.items.map(a => a.fields)
-
-    // function findTypeValueByReference(id) {
-    //     var type;
-    //     shipSegment.items.forEach((element) => {
-    //         if (element.sys.id === id) {
-    //             type = Object.values(element.fields.type).toString()
-    //         }
-    //     });
-    //     return type;
-    // }
-    // function findEntryIdByImoNumber(imoNumber) {
-    //     var entryId;
-    //     for (element of vessel.items) {
-    //         if (Object.values(element.fields.imoNumber).toString() === imoNumber) {
-    //             entryId = element.sys.id.toString()
-    //         }
-
-    //     }
-    //     return entryId;
-    // }
-    // function findEntryIdBySegmentName(segmentName) {
-    //     var entryId;
-    //     for (element of shipSegment.items) {
-    //         if (Object.values(element.fields.type).toString() === segmentName) {
-    //             entryId = element.sys.id.toString()
-    //         }
-
-    //     }
-    //     return entryId;
-    // }
     // //Finds modified or deleted items
 
     // const segmentDoNotExistsOrIsUpdated = shipSegmentFields.filter(item => json.FleetCollection.every(item2 => item2.Type != Object.values(item.type).toString()
