@@ -100,77 +100,79 @@ exports.handler = async function (event, context) {
             }) === -1;
             return doesNotExist;
         })
+
+
+        //Looping through filtered items and add them to contentful
+        for (const data of filteredSegment) {
+            await processOneEntrySegment(data, this);
+        }
+        async function processOneEntrySegment(data) {
+            await client.getSpace(process.env.SPACE_ID)
+                .then((space) => space.getEnvironment('master'))
+                .then((environment) => environment.createEntry('shipSegment', {
+                    fields: {
+                        name: { 'en-US': data.type },
+                    }
+                }))
+                .then((entry) => entry.publish())
+                .catch(console.error)
+        }
+
+        //Finds modified or deleted items
+        doNotExistsOrIsUpdated = ship.filter(item => json.FleetCollection.every(item2 => item2.Name != Object.values(item.name).toString()
+            || item2.Type != findTypeValueByReference(item.type['en-US'].sys.id.toString())
+            || item2.Cbm != Object.values(item.cbm).toString()
+            || item2.Sdwt != Object.values(item.sdwt).toString()
+            || item2["Flag_Country_Name"] != Object.values(item.flagCountryName).toString()
+            || item2["Build_Year"] != Object.values(item.buildYear).toString()
+            || item2.Imo != Object.values(item.imo).toString()
+            || item2["Ice_Class"] != Object.values(item.iceClass).toString()
+            || item2.Yard != Object.values(item.yard).toString()
+            || ((item2["Tank_Coating"] || "") !== Object.values(item.tankCoating).toString())
+            || item2["Imo_Number"] != Object.values(item.imoNumber).toString()
+            || item2.Draft != Object.values(item.draft).toString()
+            || item2.Loa != Object.values(item.loa).toString()
+            || item2.Beam != Object.values(item.beam).toString()
+            || item2.Scnt != Object.values(item.scnt).toString()
+            || item2.Pcbt != Object.values(item.pcbt).toString()
+            || item2["Cbm_Slops"] != Object.values(item.cbmSlops).toString()
+            || item2.Class != Object.values(item.class).toString()
+            || item2.Piclub != Object.values(item.piclub).toString()
+            || item2.Ktm != Object.values(item.ktm).toString()
+        ));
+
+
+        //removes modified or deleted items
+        for (item of doNotExistsOrIsUpdated) {
+            var imoNumber = Object.values(item.imoNumber).toString()
+            id = findEntryIdByImoNumber(imoNumber)
+            console.log(id)
+            const entry = await clientWithEnv.getEntry(id)
+            const unpublishEntry = await entry.unpublish()
+            const deleteEntry = await unpublishEntry.delete()
+            console.log("Deleted " + deleteEntry)
+        }
+        vessel = await clientWithEnv.getEntries({
+            content_type: 'vessel',
+            limit: 500
+        }
+        );
+        ship = vessel.items.map(a => a.fields)
+        //Finds new added items
+        const filtered = json.FleetCollection.filter(x => {
+            const doesNotExist = ship.findIndex(y => {
+                const shipNumber = Object.values(y.imoNumber)[0]
+                const fleetNumber = x.Imo_Number
+                return shipNumber === fleetNumber
+            }) === -1;
+            return doesNotExist;
+        })
+        console.log("næsten færdig")
+
     } catch (e) {
         console.log(e)
     }
     console.log("Here")
-
-    // //Looping through filtered items and add them to contentful
-    // for (const data of filteredSegment) {
-    //     await processOneEntrySegment(data, this);
-    // }
-    // async function processOneEntrySegment(data) {
-    //     await client.getSpace(process.env.SPACE_ID)
-    //         .then((space) => space.getEnvironment('master'))
-    //         .then((environment) => environment.createEntry('shipSegment', {
-    //             fields: {
-    //                 name: { 'en-US': data.type },
-    //             }
-    //         }))
-    //         .then((entry) => entry.publish())
-    //         .catch(console.error)
-    // }
-
-    // //Finds modified or deleted items
-    // doNotExistsOrIsUpdated = ship.filter(item => json.FleetCollection.every(item2 => item2.Name != Object.values(item.name).toString()
-    //     || item2.Type != findTypeValueByReference(item.type['en-US'].sys.id.toString())
-    //     || item2.Cbm != Object.values(item.cbm).toString()
-    //     || item2.Sdwt != Object.values(item.sdwt).toString()
-    //     || item2["Flag_Country_Name"] != Object.values(item.flagCountryName).toString()
-    //     || item2["Build_Year"] != Object.values(item.buildYear).toString()
-    //     || item2.Imo != Object.values(item.imo).toString()
-    //     || item2["Ice_Class"] != Object.values(item.iceClass).toString()
-    //     || item2.Yard != Object.values(item.yard).toString()
-    //     || ((item2["Tank_Coating"] || "") !== Object.values(item.tankCoating).toString())
-    //     || item2["Imo_Number"] != Object.values(item.imoNumber).toString()
-    //     || item2.Draft != Object.values(item.draft).toString()
-    //     || item2.Loa != Object.values(item.loa).toString()
-    //     || item2.Beam != Object.values(item.beam).toString()
-    //     || item2.Scnt != Object.values(item.scnt).toString()
-    //     || item2.Pcbt != Object.values(item.pcbt).toString()
-    //     || item2["Cbm_Slops"] != Object.values(item.cbmSlops).toString()
-    //     || item2.Class != Object.values(item.class).toString()
-    //     || item2.Piclub != Object.values(item.piclub).toString()
-    //     || item2.Ktm != Object.values(item.ktm).toString()
-    // ));
-
-    // //removes modified or deleted items
-    // for (item of doNotExistsOrIsUpdated) {
-    //     var imoNumber = Object.values(item.imoNumber).toString()
-    //     id = findEntryIdByImoNumber(imoNumber)
-    //     console.log(id)
-    //     const entry = await clientWithEnv.getEntry(id)
-    //     const unpublishEntry = await entry.unpublish()
-    //     const deleteEntry = await unpublishEntry.delete()
-    //     console.log("Deleted " + deleteEntry)
-    // }
-    // vessel = await clientWithEnv.getEntries({
-    //     content_type: 'vessel',
-    //     limit: 500
-    // }
-    // );
-    // ship = vessel.items.map(a => a.fields)
-    // //Finds new added items
-    // const filtered = json.FleetCollection.filter(x => {
-    //     const doesNotExist = ship.findIndex(y => {
-    //         const shipNumber = Object.values(y.imoNumber)[0]
-    //         const fleetNumber = x.Imo_Number
-    //         return shipNumber === fleetNumber
-    //     }) === -1;
-    //     return doesNotExist;
-    // })
-    // console.log("næsten færdig")
-
     // //Looping through filtered items and add them to contentful
     // for (const data of filtered) {
     //     let segmentId = [];
