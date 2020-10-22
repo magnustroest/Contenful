@@ -8,11 +8,13 @@ exports.handler = async function (event, context) {
     const client = contentful.createClient({
         accessToken: process.env.ACCESSTOKEN,
     });
-    console.log("client ")
     const main = async () => {
         try {
+            console.log("Oh")
             const clientWithSpace = await client.getSpace(process.env.SPACE_ID);
+            console.log("MY")
             const clientWithEnv = await clientWithSpace.getEnvironment('master');
+            console.log("God")
             const response = await fetch(process.env.API_ENDPOINT, { headers: { 'Content-Type': 'application/json', 'Ocp-Apim-Subscription-Key': process.env.OCPAPIMSUBSCRIPTIONKEYFLEET, 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept' } });
             const json = await response.json();
             delete json.FleetTotalsSplitBySegment
