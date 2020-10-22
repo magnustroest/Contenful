@@ -179,7 +179,7 @@ exports.handler = async function (event, context) {
             var json = await getResponse.json()
             if (typeof json.properties !== 'undefined') {
                 console.log("waiting 10 sec")
-                await sleep(10000)
+                await sleep(2000)
                 return getResponseMethod();
             }
             else {
