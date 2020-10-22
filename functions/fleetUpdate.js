@@ -33,76 +33,77 @@ exports.handler = async function (event, context) {
         }
         );
         var ship = vessel.items.map(a => a.fields)
-  
-    var shipSegment = await clientWithEnv.getEntries({
-        content_type: 'shipSegment'
-    }
-    );
-    var shipSegmentFields = shipSegment.items.map(a => a.fields)
 
-    function findTypeValueByReference(id) {
-        var type;
-        shipSegment.items.forEach((element) => {
-            if (element.sys.id === id) {
-                type = Object.values(element.fields.type).toString()
-            }
-        });
-        return type;
-    }
-    function findEntryIdByImoNumber(imoNumber) {
-        var entryId;
-        for (element of vessel.items) {
-            if (Object.values(element.fields.imoNumber).toString() === imoNumber) {
-                entryId = element.sys.id.toString()
-            }
-
+        var shipSegment = await clientWithEnv.getEntries({
+            content_type: 'shipSegment'
         }
-        return entryId;
-    }
-    function findEntryIdBySegmentName(segmentName) {
-        var entryId;
-        for (element of shipSegment.items) {
-            if (Object.values(element.fields.type).toString() === segmentName) {
-                entryId = element.sys.id.toString()
-            }
+        );
+        var shipSegmentFields = shipSegment.items.map(a => a.fields)
 
+        function findTypeValueByReference(id) {
+            var type;
+            shipSegment.items.forEach((element) => {
+                if (element.sys.id === id) {
+                    type = Object.values(element.fields.type).toString()
+                }
+            });
+            return type;
         }
-        return entryId;
-    }
-      } catch (e) {
+        function findEntryIdByImoNumber(imoNumber) {
+            var entryId;
+            for (element of vessel.items) {
+                if (Object.values(element.fields.imoNumber).toString() === imoNumber) {
+                    entryId = element.sys.id.toString()
+                }
+
+            }
+            return entryId;
+        }
+        function findEntryIdBySegmentName(segmentName) {
+            var entryId;
+            for (element of shipSegment.items) {
+                if (Object.values(element.fields.type).toString() === segmentName) {
+                    entryId = element.sys.id.toString()
+                }
+
+            }
+            return entryId;
+        }
+
+        //Finds modified or deleted items
+
+        const segmentDoNotExistsOrIsUpdated = shipSegmentFields.filter(item => json.FleetCollection.every(item2 => item2.Type != Object.values(item.type).toString()
+        ));
+
+        //removes modified or deleted items
+        for (item of segmentDoNotExistsOrIsUpdated) {
+            var segmentName = Object.values(item.type).toString()
+            id = findEntryIdBySegmentName(segmentName)
+            console.log(id)
+            const entry = await clientWithEnv.getEntry(id)
+            const unpublishEntry = await entry.unpublish()
+            const deleteEntry = await unpublishEntry.delete()
+            console.log("Deleted " + deleteEntry)
+        }
+        shipSegment = await clientWithEnv.getEntries({
+            content_type: 'shipSegment',
+            limit: 500
+        }
+        );
+        shipSegmentFields = shipSegment.items.map(a => a.fields)
+        //Finds new added items
+        const filteredSegment = json.FleetCollection.filter(x => {
+            const doesNotExist = shipSegmentFields.findIndex(y => {
+                const shipSegment = Object.values(y.type)[0]
+                const vesselSegment = x.Type
+                return shipSegment === vesselSegment
+            }) === -1;
+            return doesNotExist;
+        })
+    } catch (e) {
         console.log(e)
     }
     console.log("Here")
-    // //Finds modified or deleted items
-
-    // const segmentDoNotExistsOrIsUpdated = shipSegmentFields.filter(item => json.FleetCollection.every(item2 => item2.Type != Object.values(item.type).toString()
-    // ));
-
-    // //removes modified or deleted items
-    // for (item of segmentDoNotExistsOrIsUpdated) {
-    //     var segmentName = Object.values(item.type).toString()
-    //     id = findEntryIdBySegmentName(segmentName)
-    //     console.log(id)
-    //     const entry = await clientWithEnv.getEntry(id)
-    //     const unpublishEntry = await entry.unpublish()
-    //     const deleteEntry = await unpublishEntry.delete()
-    //     console.log("Deleted " + deleteEntry)
-    // }
-    // shipSegment = await clientWithEnv.getEntries({
-    //     content_type: 'shipSegment',
-    //     limit: 500
-    // }
-    // );
-    // shipSegmentFields = shipSegment.items.map(a => a.fields)
-    // //Finds new added items
-    // const filteredSegment = json.FleetCollection.filter(x => {
-    //     const doesNotExist = shipSegmentFields.findIndex(y => {
-    //         const shipSegment = Object.values(y.type)[0]
-    //         const vesselSegment = x.Type
-    //         return shipSegment === vesselSegment
-    //     }) === -1;
-    //     return doesNotExist;
-    // })
 
     // //Looping through filtered items and add them to contentful
     // for (const data of filteredSegment) {
