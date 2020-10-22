@@ -1,5 +1,5 @@
 const fetch = require('node-fetch')
-require('dotenv').config({path: '../.env'});
+require('dotenv').config({ path: '../.env' });
 const contentful = require('contentful-management');
 
 exports.handler = async function (event, context) {
@@ -7,10 +7,12 @@ exports.handler = async function (event, context) {
 
     const client = contentful.createClient({
         accessToken: process.env.ACCESSTOKEN,
+        logHandler: (level, data) => {
+            console.log(`[${level}] ${data}`)
+        }
     });
     const main = async () => {
         try {
-            console.log(client)
             console.log(process.env.API_ENDPOINT + " " + process.env.SPACE_ID)
             console.log("Oh")
             const clientWithSpace = await client.getSpace(process.env.SPACE_ID);
