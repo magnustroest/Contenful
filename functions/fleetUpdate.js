@@ -1,7 +1,6 @@
 const fetch = require('node-fetch')
 require('dotenv').config({path: '../.env'});
 const contentful = require('contentful-management');
-const API_ENDPOINT = process.env.API_ENDPOINT;
 
 exports.handler = async function (event, context) {
     console.log("1")
@@ -11,13 +10,9 @@ exports.handler = async function (event, context) {
     });
     const main = async () => {
         try {
-            console.log("hej")
-            console.log(process.env.SPACE_ID)
-            const clientWithSpace = await client.getSpace(process.env.getSpace);
-            console.log(process.env.getSpace)
+            const clientWithSpace = await client.getSpace(process.env.SPACE_ID);
             const clientWithEnv = await clientWithSpace.getEnvironment('master');
-            const response = await fetch(API_ENDPOINT, { headers: { 'Content-Type': 'application/json', 'Ocp-Apim-Subscription-Key': process.env.OcpApimSubscriptionKeyFleet, 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept' } });
-            console.log(process.env.OcpApimSubscriptionKeyFleet)
+            const response = await fetch(process.env.API_ENDPOINT, { headers: { 'Content-Type': 'application/json', 'Ocp-Apim-Subscription-Key': process.env.OCPAPIMSUBSCRIPTIONKEYFLEET, 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept' } });
             const json = await response.json();
             delete json.FleetTotalsSplitBySegment
             console.log("2")
@@ -158,6 +153,7 @@ exports.handler = async function (event, context) {
                 }) === -1;
                 return doesNotExist;
             })
+            console.log("næsten færdig")
 
             //Looping through filtered items and add them to contentful
             for (const data of filtered) {
@@ -170,7 +166,7 @@ exports.handler = async function (event, context) {
                 await processOneEntry(data, segmentId, this);
             }
             async function processOneEntry(data, segmentId) {
-                await client.getSpace(process.env.getSpace)
+                await client.getSpace(process.env.SPACE_ID)
                     .then((space) => space.getEnvironment('master'))
                     .then((environment) => environment.createEntry('vessel', {
                         fields: {
