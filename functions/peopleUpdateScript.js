@@ -169,6 +169,7 @@ exports.handler = async function (event, context) {
 
         });
 
+        console.log("sdadasd")
         async function getResponseMethod() {
             var getResponse = await fetch(postResponse.headers.get('Location'), {
                 headers: { 'Content-Type': 'application/json', 'Ocp-Apim-Subscription-Key': process.env.OCPAPIMSUBSCRIPTIONKEYPEOPLE, 'Access-Control-Expose-Headers': 'Location' },
