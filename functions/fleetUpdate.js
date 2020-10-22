@@ -1,4 +1,5 @@
 const fetch = require('node-fetch')
+require('dotenv').config({path: '../.env'});
 const contentful = require('contentful-management');
 require('dotenv').config();
 const API_ENDPOINT = process.env.API_ENDPOINT;

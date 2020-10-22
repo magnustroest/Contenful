@@ -1,9 +1,9 @@
 const fetch = require('node-fetch')
-require('dotenv').config();
+require('dotenv').config({path: '../.env'});
 const Post_API = process.env.Post_API;
 const contentful = require('contentful-management');
 
-exports.handler = async function (event, context) {
+console.log(typeof process.env.accessToken)
 const client = contentful.createClient({
     accessToken: process.env.accessToken,
 });
@@ -448,14 +448,8 @@ const main = async () => {
                 .then((entry) => entry.publish())
                 .catch(console.error)
         }
-
-        return {
-            statusCode: 200,
-            body: JSON.stringify({ message: "Goood" })
-        };
     } catch (e) {
         console.error(e)
     }
 }
 main();
-}
