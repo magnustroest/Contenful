@@ -206,7 +206,7 @@ exports.handler = async function (event, context) {
                 body: JSON.stringify({ message: "Goood" })
             };
         } catch (e) {
-            console.error(e)
+            console.log(e)
         }
     }
     main();
