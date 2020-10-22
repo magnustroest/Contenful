@@ -12,6 +12,7 @@ exports.handler = async function (event, context) {
     const main = async () => {
         try {
             console.log("hej")
+            console.log(process.env.SPACE_ID)
             const clientWithSpace = await client.getSpace(process.env.getSpace);
             console.log(process.env.getSpace)
             const clientWithEnv = await clientWithSpace.getEnvironment('master');
