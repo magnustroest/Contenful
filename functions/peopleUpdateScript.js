@@ -8,6 +8,7 @@ const sleep = require('util').promisify(setTimeout)
 
 exports.handler = async function (event, context) {
     try {
+        console.log("her er jeg")
         const postResponse = await fetch(process.env.POST_API, {
             headers: { 'Content-Type': 'application/json', 'Ocp-Apim-Subscription-Key': process.env.OCPAPIMSUBSCRIPTIONKEYPEOPLE, 'Access-Control-Expose-Headers': 'Location' },
             method: "POST",
