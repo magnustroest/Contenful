@@ -7,7 +7,7 @@ const client = contentful.createClient({
 });
 const sleep = require('util').promisify(setTimeout)
 
-module.exports = (req, res) => {
+module.exports = async function(req, res) {
     try {
         const postResponse = await fetch(process.env.POST_API, {
             headers: { 'Content-Type': 'application/json', 'Ocp-Apim-Subscription-Key': process.env.OCPAPIMSUBSCRIPTIONKEYPEOPLE, 'Access-Control-Expose-Headers': 'Location' },
