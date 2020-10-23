@@ -1,4 +1,5 @@
 const fetch = require('node-fetch')
+
 require('dotenv').config({path: '../.env'});
 const contentful = require('contentful-management');
 const client = contentful.createClient({
@@ -6,9 +7,8 @@ const client = contentful.createClient({
 });
 const sleep = require('util').promisify(setTimeout)
 
-exports.handler = async function (event, context) {
+module.exports = (req, res) => {
     try {
-        console.log("her er jeg")
         const postResponse = await fetch(process.env.POST_API, {
             headers: { 'Content-Type': 'application/json', 'Ocp-Apim-Subscription-Key': process.env.OCPAPIMSUBSCRIPTIONKEYPEOPLE, 'Access-Control-Expose-Headers': 'Location' },
             method: "POST",
@@ -169,8 +169,6 @@ exports.handler = async function (event, context) {
             })
 
         });
-
-        console.log("sdadasd")
         async function getResponseMethod() {
             var getResponse = await fetch(postResponse.headers.get('Location'), {
                 headers: { 'Content-Type': 'application/json', 'Ocp-Apim-Subscription-Key': process.env.OCPAPIMSUBSCRIPTIONKEYPEOPLE, 'Access-Control-Expose-Headers': 'Location' },
@@ -179,7 +177,7 @@ exports.handler = async function (event, context) {
             var json = await getResponse.json()
             if (typeof json.properties !== 'undefined') {
                 console.log("waiting 10 sec")
-                await sleep(2000)
+                await sleep(10000)
                 return getResponseMethod();
             }
             else {
@@ -451,8 +449,9 @@ exports.handler = async function (event, context) {
     } catch (e) {
         console.error(e)
     }
-    return {
-        statusCode: 200,
-        body: JSON.stringify({ message: "Goood" })
-    };
+    res.json({
+        body: req.body,
+        query: req.query,
+        cookies: req.cookies,
+      })
 }
