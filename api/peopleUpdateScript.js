@@ -7,7 +7,7 @@ const client = contentful.createClient({
 });
 const sleep = require('util').promisify(setTimeout)
 
-module.exports = async function(req, res) {
+exports.handler = async function (event, context) {
     try {
         const postResponse = await fetch(process.env.POST_API, {
             headers: { 'Content-Type': 'application/json', 'Ocp-Apim-Subscription-Key': process.env.OCPAPIMSUBSCRIPTIONKEYPEOPLE, 'Access-Control-Expose-Headers': 'Location' },
@@ -449,9 +449,8 @@ module.exports = async function(req, res) {
     } catch (e) {
         console.error(e)
     }
-    res.json({
-        body: req.body,
-        query: req.query,
-        cookies: req.cookies,
-      })
+    return {
+        statusCode: 200,
+        body: JSON.stringify({ message: "Goood" })
+    };
 }
