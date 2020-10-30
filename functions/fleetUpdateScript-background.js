@@ -160,6 +160,7 @@ exports.handler = async function (event, context) {
             });
             await processOneEntry(data, segmentId, this);
         }
+        console.log("script is running")
         async function processOneEntry(data, segmentId) {
             await client.getSpace(process.env.SPACE_ID)
                 .then((space) => space.getEnvironment('master'))
