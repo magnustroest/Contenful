@@ -1,9 +1,6 @@
 const fetch = require('node-fetch')
-require('dotenv').config({ path: '../.env' });
 const contentful = require('contentful-management');
-
 exports.handler = async function (event, context) {
-
     const client = contentful.createClient({
         accessToken: process.env.ACCESSTOKEN,
         logHandler: (level, data) => {
@@ -11,13 +8,11 @@ exports.handler = async function (event, context) {
         }
     });
     try {
-        console.log(process.env.API_ENDPOINT + " " + process.env.SPACE_ID)
         const clientWithSpace = await client.getSpace(process.env.SPACE_ID);
         const clientWithEnv = await clientWithSpace.getEnvironment('master');
-        const response = await fetch(process.env.API_ENDPOINT, { headers: { 'Content-Type': 'application/json', 'Ocp-Apim-Subscription-Key': process.env.OCPAPIMSUBSCRIPTIONKEYFLEET, 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept' } });
-        const json = await response.json();
-        delete json.FleetTotalsSplitBySegment
-        console.log("2")
+        const apiResponse = await fetch(process.env.API_ENDPOINT, { headers: { 'Content-Type': 'application/json', 'Ocp-Apim-Subscription-Key': process.env.OCPAPIMSUBSCRIPTIONKEYFLEET, 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept' } });
+        const apiResponseJson = await apiResponse.json();
+        delete apiResponseJson.FleetTotalsSplitBySegment
         var vessel = await clientWithEnv.getEntries({
             content_type: 'vessel',
             limit: 500
@@ -55,21 +50,16 @@ exports.handler = async function (event, context) {
                 if (Object.values(element.fields.type).toString() === segmentName) {
                     entryId = element.sys.id.toString()
                 }
-
             }
             return entryId;
         }
-
         //Finds modified or deleted items
-
-        const segmentDoNotExistsOrIsUpdated = shipSegmentFields.filter(item => json.FleetCollection.every(item2 => item2.Type != Object.values(item.type).toString()
+        const segmentDoNotExistsOrIsUpdated = shipSegmentFields.filter(item => apiResponseJson.FleetCollection.every(item2 => item2.Type != Object.values(item.type).toString()
         ));
-
         //removes modified or deleted items
         for (item of segmentDoNotExistsOrIsUpdated) {
             var segmentName = Object.values(item.type).toString()
             id = findEntryIdBySegmentName(segmentName)
-            console.log(id)
             const entry = await clientWithEnv.getEntry(id)
             const unpublishEntry = await entry.unpublish()
             const deleteEntry = await unpublishEntry.delete()
@@ -82,7 +72,7 @@ exports.handler = async function (event, context) {
         );
         shipSegmentFields = shipSegment.items.map(a => a.fields)
         //Finds new added items
-        const filteredSegment = json.FleetCollection.filter(x => {
+        const filteredSegment = apiResponseJson.FleetCollection.filter(x => {
             const doesNotExist = shipSegmentFields.findIndex(y => {
                 const shipSegment = Object.values(y.type)[0]
                 const vesselSegment = x.Type
@@ -91,25 +81,30 @@ exports.handler = async function (event, context) {
             return doesNotExist;
         })
 
-
+        const segmentArray = []
+        for (const item of filteredSegment) {
+            segmentArray.push(item.type)
+        }
+        const segmentArrayNoDup = [...new Set(segmentArray)];
         //Looping through filtered items and add them to contentful
-        for (const data of filteredSegment) {
-            await processOneEntrySegment(data, this);
+        if (segmentArrayNoDup.length !== 0) {
+            for (const data of segmentArrayNoDup) {
+                await processOneEntrySegment(data, this);
+            }
         }
         async function processOneEntrySegment(data) {
             await client.getSpace(process.env.SPACE_ID)
                 .then((space) => space.getEnvironment('master'))
                 .then((environment) => environment.createEntry('shipSegment', {
                     fields: {
-                        name: { 'en-US': data.type },
+                        name: { 'en-US': data },
                     }
                 }))
                 .then((entry) => entry.publish())
                 .catch(console.error)
         }
-
         //Finds modified or deleted items
-        doNotExistsOrIsUpdated = ship.filter(item => json.FleetCollection.every(item2 => item2.Name != Object.values(item.name).toString()
+        doNotExistsOrIsUpdated = ship.filter(item => apiResponseJson.FleetCollection.every(item2 => item2.Name != Object.values(item.name).toString()
             || item2.Type != findTypeValueByReference(item.type['en-US'].sys.id.toString())
             || item2.Cbm != Object.values(item.cbm).toString()
             || item2.Sdwt != Object.values(item.sdwt).toString()
@@ -130,8 +125,6 @@ exports.handler = async function (event, context) {
             || item2.Piclub != Object.values(item.piclub).toString()
             || item2.Ktm != Object.values(item.ktm).toString()
         ));
-
-
         //removes modified or deleted items
         for (item of doNotExistsOrIsUpdated) {
             var imoNumber = Object.values(item.imoNumber).toString()
@@ -149,7 +142,7 @@ exports.handler = async function (event, context) {
         );
         ship = vessel.items.map(a => a.fields)
         //Finds new added items
-        const filtered = json.FleetCollection.filter(x => {
+        const filtered = apiResponseJson.FleetCollection.filter(x => {
             const doesNotExist = ship.findIndex(y => {
                 const shipNumber = Object.values(y.imoNumber)[0]
                 const fleetNumber = x.Imo_Number
@@ -157,9 +150,6 @@ exports.handler = async function (event, context) {
             }) === -1;
             return doesNotExist;
         })
-        console.log("næsten færdig")
-
-
         //Looping through filtered items and add them to contentful
         for (const data of filtered) {
             let segmentId = [];
@@ -203,10 +193,14 @@ exports.handler = async function (event, context) {
         }
     } catch (e) {
         console.log(e)
+        return {
+            statusCode: 500,
+            body: JSON.stringify({ message: e })
+        };
     }
     return {
         statusCode: 200,
-        body: JSON.stringify({ message: "Goood" })
+        body: JSON.stringify({ message: "Everything went well!" })
     };
 
 }
