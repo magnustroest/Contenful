@@ -31,10 +31,10 @@ exports.handler = async function (event, context) {
 
         var apiResponseJson = await getResponseMethod()
 
+        console.log(apiResponseJson)
+
         const clientWithSpace = await client.getSpace(process.env.SPACE_ID);
         const clientWithEnv = await clientWithSpace.getEnvironment('master');
-
-
         var people = await clientWithEnv.getEntries({
             content_type: 'people',
             limit: 500
